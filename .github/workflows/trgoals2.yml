@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests urllib3
 
-      - name: Run Python script
+      - name: Run Python trgoals2.py
         run: python trgoals2.py
 
       - name: Upload M3U output as artifact
@@ -32,3 +32,4 @@ jobs:
         with:
           name: trgoals-m3u
           path: trgoals2.m3u
+
