@@ -1,75 +1,41 @@
-name: Update
+name: Download M3U Files
 
 on:
-  workflow_dispatch:
-  watch:
-    types: [started]
   schedule:
-    - cron: "0,15,30,45 * * * *"
-
-permissions:
-  contents: write  # 确保具有写权限
-
-env:
-  TZ: Asia/Shanghai
+    - cron: "0 */6 * * *"  # Her 6 saatte bir çalışır
+  workflow_dispatch:
 
 jobs:
-  Update:
+  download:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Repo'yu klonla
+        uses: actions/checkout@v3
 
-    - name: GetTime
-      run: echo "DATE=$(date +'%Y-%m-%d %H:%M:%S CST')" >> $GITHUB_ENV
+      - name: M3U dosyalarını indir
+        run: |
+          mkdir -p m3u
+          cd m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/dizifun.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/filmfun.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/filmler.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Blutv.m3u
+          curl -o Amazon_Prime.m3u https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Amazon%20Prime.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Netflix.m3u
+          curl -o TOD_TV.m3u https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/TOD%20TV.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Tabii.m3u
+          curl -o HBO_Max.m3u https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/HBO%20Max.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Hulu.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/METV/refs/heads/main/justsporthd1.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/xyzvtt/refs/heads/main/xyzvt.m3u
+          curl -O https://raw.githubusercontent.com/mehmetey03/METV/refs/heads/main/salamistv1.m3u
+          curl -O https://raw.githubusercontent.com/ahmet21ahmet/Atv/refs/heads/main/playsport/Trendyol_1._Lig_2025-2026/Trendyol_1._Lig_2025-2026.m3u
+          curl -O https://raw.githubusercontent.com/ahmet21ahmet/Atv/refs/heads/main/playsport/S%C3%BCper_Lig_2025-2026/S%C3%BCper_Lig_2025-2026.m3u
 
-    - name: Download and Merge M3U
-      run: |
-        # 下载文件
-        wget https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/dizifun.m3u -O ipv6-dizifun.m3u
-        wget https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/filmfun.m3u  -O ipv6-filmfun.m3u
-        wget https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/filmler.m3u  -O iptv6-filmler.m3u
-        wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Blutv.m3u  -O iptv4-blutv.m3u
-	wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Amazon%20Prime.m3u  -O iptv4-amazonprime.m3u
-        wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Netflix.m3u  -O ipv6-netfilx.m3u
-	wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/TOD%20TV.m3u  -O ipv6-tod.m3u
-	wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Tabii.m3u  -O ipv6-tabii.m3u
-	wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/HBO%20Max.m3u  -O ipv6-hbo.m3u
-	wget https://raw.githubusercontent.com/mehmetey03/metvvd/refs/heads/main/filmfun.m3u  -O ipv6-filmfun.m3u
- 	wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Hulu.m3u -O ipv4-hulu.m3u
-	wget https://raw.githubusercontent.com/mehmetey03/alma/refs/heads/main/m3u/Hulu.m3u -O ipv4-hulu.m3u
-        wget https://raw.githubusercontent.com/ahmet21ahmet/Atv/refs/heads/main/playsport/Trendyol_1._Lig_2025-2026/Trendyol_1._Lig_2025-2026.m3u -O hktw-1.lig.m3u
-	#wget https://raw.githubusercontent.com/ahmet21ahmet/Atv/refs/heads/main/playsport/S%C3%BCper_Lig_2025-2026/S%C3%BCper_Lig_2025-2026.m3u -O hktw-superlig.m3u
-	#wget https://raw.githubusercontent.com/mehmetey03/METV/refs/heads/main/justsporthd1.m3u -O hktw-just.m3u
-	#wget https://raw.githubusercontent.com/mehmetey03/xyzvtt/refs/heads/main/xyzvt.m3u -O hktw-xyz.m3u
-	#wget https://raw.githubusercontent.com/mehmetey03/METV/refs/heads/main/salamistv1.m3u -O hktw-salasmis.m3u
-
-
-        # 合并文件
-        echo "#EXTM3U" > merged_playlist.m3u
-        awk '/^#EXTINF/{channel=$0; getline; url=$0; if(!seen[channel]++){print channel >> "merged_playlist.m3u"; print url >> "merged_playlist.m3u"}}' ipv6-fmm.m3u ipv4.m3u ipv6-gather.m3u
-
-    - name: Update EPG
-      run: |
-        # 下载节目单
-        rm -f EPG.xml && wget https://epg.112114.xyz/pp.xml -O EPG.xml
-
-    - name: Update README
-      run: |
-        echo "已于 $DATE 自动更新频道" > README.md
-
-
-    - name: Clean and Commit Changes
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git checkout --orphan latest_branch
-        git add -A
-        git commit -am "$DATE"
-        git branch -D main
-        git branch -m main
-
-    - name: Push Changes
-      run: |
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-        git push -f origin main
+      - name: Değişiklikleri commit'le
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add m3u/*.m3u
+          git commit -m "M3U dosyaları güncellendi"
+          git push
