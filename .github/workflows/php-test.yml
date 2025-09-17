@@ -1,0 +1,24 @@
+# .github/workflows/php-test.yml
+name: PHP Script Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Repo'yu klonla
+      uses: actions/checkout@v3
+
+    - name: PHP kur
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+
+    - name: PHP sentaks kontrolü yap
+      run: php -l HDFilmCehennemi.php
